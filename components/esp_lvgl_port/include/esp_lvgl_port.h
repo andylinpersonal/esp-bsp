@@ -141,7 +141,7 @@ esp_err_t lvgl_port_resume(void);
  *      - ESP_ERR_NOT_SUPPORTED if it is not implemented
  *      - ESP_ERR_INVALID_STATE if queue is not initialized (can be returned after LVGL deinit)
  */
-esp_err_t lvgl_port_task_wake(lvgl_port_event_t event, bool isr);
+esp_err_t lvgl_port_task_wake(lvgl_port_event_t event);
 
 #ifdef __cplusplus
 }

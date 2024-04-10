@@ -129,5 +129,5 @@ static void lvgl_port_touchpad_read(lv_indev_t *indev_drv, lv_indev_data_t *data
 static void lvgl_port_touch_interrupt_callback(esp_lcd_touch_handle_t tp)
 {
     /* Wake LVGL task, if needed */
-    lvgl_port_task_wake(LVGL_PORT_EVENT_TOUCH, true);
+    lvgl_port_task_wake(LVGL_PORT_EVENT_TOUCH);
 }

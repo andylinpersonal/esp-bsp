@@ -328,6 +328,8 @@ static void lvgl_port_usb_hid_host_interface_callback(hid_host_device_handle_t h
                 }
             }
 
+            /* Wake LVGL task, if needed */
+            lvgl_port_task_wake(LVGL_PORT_EVENT_TOUCH);
         } else if (dev.proto == HID_PROTOCOL_MOUSE) {
             hid_mouse_input_report_boot_t *mouse = (hid_mouse_input_report_boot_t *)data;
             if (data_length < sizeof(hid_mouse_input_report_boot_t)) {
@@ -336,6 +338,9 @@ static void lvgl_port_usb_hid_host_interface_callback(hid_host_device_handle_t h
             hid_ctx->mouse.left_button = mouse->buttons.button1;
             hid_ctx->mouse.x += mouse->x_displacement;
             hid_ctx->mouse.y += mouse->y_displacement;
+
+            /* Wake LVGL task, if needed */
+            lvgl_port_task_wake(LVGL_PORT_EVENT_TOUCH);
         }
         break;
     case HID_HOST_INTERFACE_EVENT_TRANSFER_ERROR:

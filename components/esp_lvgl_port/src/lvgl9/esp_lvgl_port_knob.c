@@ -29,6 +29,7 @@ typedef struct {
 static void lvgl_port_encoder_read(lv_indev_t *indev_drv, lv_indev_data_t *data);
 static void lvgl_port_encoder_btn_down_handler(void *arg, void *arg2);
 static void lvgl_port_encoder_btn_up_handler(void *arg, void *arg2);
+static void lvgl_port_encoder_knob_handler(void *arg, void *arg2);
 
 /*******************************************************************************
 * Public API functions
@@ -52,6 +53,10 @@ lv_indev_t *lvgl_port_add_encoder(const lvgl_port_encoder_cfg_t *encoder_cfg)
     if (encoder_cfg->encoder_a_b != NULL) {
         encoder_ctx->knob_handle = iot_knob_create(encoder_cfg->encoder_a_b);
         ESP_GOTO_ON_FALSE(encoder_ctx->knob_handle, ESP_ERR_NO_MEM, err, TAG, "Not enough memory for knob create!");
+
+        iot_knob_register_cb
+        ESP_ERROR_CHECK(iot_knob_register_cb(encoder_ctx->knob_handle, KNOB_LEFT, lvgl_port_encoder_knob_handler, encoder_ctx));
+        ESP_ERROR_CHECK(iot_knob_register_cb(encoder_ctx->knob_handle, KNOB_RIGHT, lvgl_port_encoder_knob_handler, encoder_ctx));
     }
 
     /* Encoder Enter */
@@ -152,6 +157,9 @@ static void lvgl_port_encoder_btn_down_handler(void *arg, void *arg2)
             ctx->btn_enter = true;
         }
     }
+
+    /* Wake LVGL task, if needed */
+    lvgl_port_task_wake(LVGL_PORT_EVENT_TOUCH);
 }
 
 static void lvgl_port_encoder_btn_up_handler(void *arg, void *arg2)
@@ -164,4 +172,13 @@ static void lvgl_port_encoder_btn_up_handler(void *arg, void *arg2)
             ctx->btn_enter = false;
         }
     }
+
+    /* Wake LVGL task, if needed */
+    lvgl_port_task_wake(LVGL_PORT_EVENT_TOUCH);
+}
+
+static void lvgl_port_encoder_knob_handler(void *arg, void *arg2)
+{
+    /* Wake LVGL task, if needed */
+    lvgl_port_task_wake(LVGL_PORT_EVENT_TOUCH);
 }

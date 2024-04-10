@@ -180,6 +180,9 @@ static void lvgl_port_btn_down_handler(void *arg, void *arg2)
             ctx->btn_enter = true;
         }
     }
+
+    /* Wake LVGL task, if needed */
+    lvgl_port_task_wake(LVGL_PORT_EVENT_TOUCH);
 }
 
 static void lvgl_port_btn_up_handler(void *arg, void *arg2)
@@ -200,4 +203,7 @@ static void lvgl_port_btn_up_handler(void *arg, void *arg2)
             ctx->btn_enter = false;
         }
     }
+
+    /* Wake LVGL task, if needed */
+    lvgl_port_task_wake(LVGL_PORT_EVENT_TOUCH);
 }
