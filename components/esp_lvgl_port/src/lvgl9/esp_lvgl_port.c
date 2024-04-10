@@ -10,6 +10,7 @@
 #include "esp_check.h"
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/portmacro.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "esp_lvgl_port.h"
@@ -157,13 +158,13 @@ void lvgl_port_unlock(void)
     xSemaphoreGiveRecursive(lvgl_port_ctx.lvgl_mux);
 }
 
-esp_err_t lvgl_port_task_wake(lvgl_port_event_t event, bool isr)
+esp_err_t lvgl_port_task_wake(lvgl_port_event_t event)
 {
     if (!lvgl_port_ctx.lvgl_queue) {
         return ESP_ERR_INVALID_STATE;
     }
 
-    if (isr) {
+    if (xPortInIsrContext() == pdTRUE) {
         BaseType_t xHigherPriorityTaskWoken = pdFALSE;
         xQueueSendFromISR(lvgl_port_ctx.lvgl_queue, &event, &xHigherPriorityTaskWoken);
         if (xHigherPriorityTaskWoken) {

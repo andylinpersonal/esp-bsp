@@ -337,7 +337,7 @@ static void lvgl_port_disp_rotation_update(lvgl_port_display_ctx_t *disp_ctx)
     }
 
     /* Wake LVGL task, if needed */
-    lvgl_port_task_wake(LVGL_PORT_EVENT_DISPLAY, false);
+    lvgl_port_task_wake(LVGL_PORT_EVENT_DISPLAY);
 }
 
 static void lvgl_port_disp_size_update_callback(lv_event_t *e)
@@ -350,5 +350,5 @@ static void lvgl_port_disp_size_update_callback(lv_event_t *e)
 static void lvgl_port_display_invalidate_callback(lv_event_t *e)
 {
     /* Wake LVGL task, if needed */
-    lvgl_port_task_wake(LVGL_PORT_EVENT_DISPLAY, false);
+    lvgl_port_task_wake(LVGL_PORT_EVENT_DISPLAY);
 }
