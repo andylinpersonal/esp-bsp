@@ -135,7 +135,7 @@ esp_err_t lvgl_port_resume(void);
  *
  * @note It is called from LVGL events and touch interrupts
  *
- * @param isr          true, when called from interrupt
+ * @param event     event type
  * @return
  *      - ESP_OK on success
  *      - ESP_ERR_NOT_SUPPORTED if it is not implemented

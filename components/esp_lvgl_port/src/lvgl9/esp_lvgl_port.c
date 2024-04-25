@@ -14,6 +14,7 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "esp_lvgl_port.h"
+#include "esp_lvgl_port_priv.h"
 #include "lvgl.h"
 
 static const char *TAG = "LVGL";
@@ -25,6 +26,7 @@ static const char *TAG = "LVGL";
 *******************************************************************************/
 
 typedef struct lvgl_port_ctx_s {
+    TaskHandle_t        lvgl_task;
     SemaphoreHandle_t   lvgl_mux;
     QueueHandle_t       lvgl_queue;
     SemaphoreHandle_t   task_init_mux;
@@ -80,9 +82,9 @@ esp_err_t lvgl_port_init(const lvgl_port_cfg_t *cfg)
 
     BaseType_t res;
     if (cfg->task_affinity < 0) {
-        res = xTaskCreate(lvgl_port_task, "LVGL task", cfg->task_stack, NULL, cfg->task_priority, NULL);
+        res = xTaskCreate(lvgl_port_task, "LVGL task", cfg->task_stack, NULL, cfg->task_priority, &lvgl_port_ctx.lvgl_task);
     } else {
-        res = xTaskCreatePinnedToCore(lvgl_port_task, "LVGL task", cfg->task_stack, NULL, cfg->task_priority, NULL, cfg->task_affinity);
+        res = xTaskCreatePinnedToCore(lvgl_port_task, "LVGL task", cfg->task_stack, NULL, cfg->task_priority, &lvgl_port_ctx.lvgl_task, cfg->task_affinity);
     }
     ESP_GOTO_ON_FALSE(res == pdPASS, ESP_FAIL, err, TAG, "Create LVGL task fail!");
 
@@ -175,6 +177,20 @@ esp_err_t lvgl_port_task_wake(lvgl_port_event_t event)
     }
 
     return ESP_OK;
+}
+
+IRAM_ATTR bool lvgl_port_task_notify(uint32_t value)
+{
+    BaseType_t need_yield = pdFALSE;
+
+    // Notify LVGL task
+    if (xPortInIsrContext() == pdTRUE) {
+        xTaskNotify(lvgl_port_ctx.lvgl_task, value, eNoAction);
+    } else {
+        xTaskNotifyFromISR(lvgl_port_ctx.lvgl_task, value, eNoAction, &need_yield);
+    }
+
+    return (need_yield == pdTRUE);
 }
 
 /*******************************************************************************
