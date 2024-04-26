@@ -167,9 +167,9 @@ IRAM_ATTR bool lvgl_port_task_notify(uint32_t value)
 
     // Notify LVGL task
     if (xPortInIsrContext() == pdTRUE) {
-        xTaskNotify(lvgl_port_ctx.lvgl_task, value, eNoAction);
-    } else {
         xTaskNotifyFromISR(lvgl_port_ctx.lvgl_task, value, eNoAction, &need_yield);
+    } else {
+        xTaskNotify(lvgl_port_ctx.lvgl_task, value, eNoAction);
     }
 
     return (need_yield == pdTRUE);
